@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CleanSheet app map</title>
+<style>
+  :root { --paper:#f6f1e7; --card:#fffdf8; --ink:#1f2a24; --muted:#62705f; --line:#ddd3c0; --accent:#2f6b4f; --soft:#e3efe7; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--paper); color:var(--ink); font:16px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif; }
+  main { max-width: 860px; margin: 0 auto; padding: 24px 18px 48px; }
+  h1,h2 { font-family: "Iowan Old Style",Palatino,Georgia,serif; letter-spacing:-.01em; }
+  h1 { margin:.2em 0 .1em; font-size: 32px; } h2 { margin: 1.6em 0 .4em; font-size: 22px; }
+  p.lead { color: var(--muted); margin-top: 0; }
+  section, details { background: var(--card); border:1px solid var(--line); border-radius:12px; padding: 14px 18px; margin: 12px 0; }
+  summary { cursor: pointer; font-weight: 700; } summary:focus-visible { outline: 3px solid rgba(47,107,79,.45); outline-offset: 3px; }
+  code { font-family: ui-monospace,Menlo,Consolas,monospace; background:#efe8d6; padding: 1px 6px; border-radius: 5px; font-size: .92em; }
+  pre { background:#1f2a24; color:#f6f1e7; padding: 12px; border-radius: 10px; overflow:auto; font-size: 13.5px; }
+  svg { width:100%; height:auto; display:block; }
+  .note { color: var(--muted); font-size: 14px; }
+  ol li, ul li { margin: .35em 0; }
+  @media (max-width:560px){ h1{font-size:26px} }
+</style>
+</head>
+<body>
+<main>
+  <h1>CleanSheet app map</h1>
+  <p class="lead">A short guide to where things live. Snapshot of commit <code>c63dfd9</code>; files may move as the project changes.</p>
+
+  <h2>What the app is</h2>
+  <section>
+    <p>CleanSheet cleans a messy CSV inside the browser and explains every change. It has two halves: a <b>cleaning engine</b> (plain JavaScript that works on data and returns a list of changes, removals and flags, each with a reason) and a <b>screen</b> that shows those lists and lets a person undo, restore or correct things. Nothing is uploaded or stored.</p>
+  </section>
+
+  <h2>One action, followed through</h2>
+  <p class="lead">Action: press <b>Run cleaning</b> on the sample file.</p>
+  <section aria-label="Diagram of the run action">
+    <svg viewBox="0 0 800 150" role="img" aria-label="Run cleaning button calls the engine run function, which returns changes, removals and flags that are shown in the review tabs">
+      <g font-family="system-ui,sans-serif" font-size="14" fill="#1f2a24">
+        <rect x="8" y="40" width="170" height="64" rx="10" fill="#e3efe7" stroke="#2f6b4f"/>
+        <text x="93" y="68" text-anchor="middle" font-weight="700">Run cleaning</text>
+        <text x="93" y="88" text-anchor="middle" font-size="12">button click</text>
+        <rect x="222" y="40" width="170" height="64" rx="10" fill="#fffdf8" stroke="#1f2a24"/>
+        <text x="307" y="68" text-anchor="middle" font-weight="700">app.js</text>
+        <text x="307" y="88" text-anchor="middle" font-size="12">runPlan handler</text>
+        <rect x="436" y="40" width="170" height="64" rx="10" fill="#fffdf8" stroke="#1f2a24"/>
+        <text x="521" y="68" text-anchor="middle" font-weight="700">engine.js</text>
+        <text x="521" y="88" text-anchor="middle" font-size="12">run() then finalize()</text>
+        <rect x="650" y="40" width="142" height="64" rx="10" fill="#e3efe7" stroke="#2f6b4f"/>
+        <text x="721" y="68" text-anchor="middle" font-weight="700">Review cards</text>
+        <text x="721" y="88" text-anchor="middle" font-size="12">stats, tabs, preview</text>
+        <g stroke="#62705f" stroke-width="2" fill="none"><path d="M178 72h40"/><path d="M392 72h40"/><path d="M606 72h40"/></g>
+        <g fill="#62705f"><path d="M218 66l8 6-8 6z"/><path d="M432 66l8 6-8 6z"/><path d="M646 66l8 6-8 6z"/></g>
+      </g>
+    </svg>
+  </section>
+
+  <h2>Reference route (3 stops)</h2>
+  <p class="note">Written as a reference route from the finished code. It has not been walked through interactively.</p>
+  <details open>
+    <summary>1. The click: <code>app.js</code>, search <code>$('runPlan').addEventListener</code></summary>
+    <p>Calls <code>CS.run(state.headers, state.rows, state.plan)</code>, resets the user's decisions, then calls <code>renderReview()</code>.</p>
+  </details>
+  <details>
+    <summary>2. The work: <code>engine.js</code>, function <code>run</code></summary>
+    <p>Makes a copy of the rows, applies each switched-on step (trim, names, email, phone, dates, numbers, duplicates, missing), and records a reason for each change. The original rows are never edited, which is why every change can be undone.</p>
+  </details>
+  <details>
+    <summary>3. The result: <code>engine.js</code> function <code>finalize</code>, then <code>app.js</code> function <code>renderReview</code></summary>
+    <p><code>finalize</code> takes the engine's lists plus the user's decisions (undone changes, restored rows, typed fixes) and returns the final rows and the change report. <code>renderReview</code> turns that into the counters, tabs and preview you see.</p>
+  </details>
+
+  <h2>To change this, start here</h2>
+  <section>
+    <ul>
+      <li><b>Add a cleaning rule:</b> <code>engine.js</code>, in <code>run</code> add a block like the others, and add its card in <code>interpret</code>.</li>
+      <li><b>Change which words trigger a rule:</b> <code>engine.js</code>, function <code>interpret</code>.</li>
+      <li><b>Change wording or layout on the review screen:</b> <code>app.js</code>, functions <code>changesPanel</code>, <code>removedPanel</code>, <code>flagsPanel</code>.</li>
+      <li><b>Change colors or fonts:</b> the <code>:root</code> block at the top of <code>style.css</code>.</li>
+      <li><b>Change the sample data:</b> <code>sample-orders.csv</code>, then regenerate <code>sample.js</code>.</li>
+    </ul>
+  </section>
+
+  <h2>A practice to reuse</h2>
+  <section>
+    <p><b>Write what "done" looks like as something you can observe, then check it by running it.</b></p>
+    <p>In this project the scope said the demo should show a compelling cleaning in under a minute. Running the browser test showed the first sentence cleaned only <b>1 cell</b>, which made a weak demo. That led to the revision recorded in <code>devpost/checklist.md</code> under Revisions (a longer sentence that cleans 21 cells). The same habit works on any project: state the visible result you expect, run it, and let the gap tell you what to change.</p>
+  </section>
+
+  <h2>Run it again</h2>
+  <section>
+    <p>Open <code>index.html</code> in a browser. To check the engine: <code>node test.js</code> should end with <code>ALL ASSERTIONS PASSED</code>.</p>
+  </section>
+</main>
+</body>
+</html>

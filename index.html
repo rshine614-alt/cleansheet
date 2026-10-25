@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CleanSheet</title>
+<meta name="description" content="Clean a messy CSV in your browser. Every change is explained, reviewable and undoable.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap top-row">
+    <div class="brand">
+      <svg class="mark" viewBox="0 0 32 32" aria-hidden="true">
+        <rect x="2" y="4" width="28" height="24" rx="4" fill="none" stroke="currentColor" stroke-width="2"/>
+        <path d="M2 11h28M11 11v17" stroke="currentColor" stroke-width="2"/>
+        <path d="M16 21l3 3 6-7" fill="none" stroke="var(--accent)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span class="brand-name">CleanSheet</span>
+    </div>
+    <p class="tagline">Messy CSV in. Clean CSV out. <strong>Every change explained.</strong></p>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- STEP 1 -->
+  <section class="card" id="s1">
+    <div class="step-head"><span class="num">1</span><h2>Bring your file</h2></div>
+    <div class="drop" id="drop" tabindex="0" role="button" aria-label="Choose a CSV file">
+      <input type="file" id="file" accept=".csv,.tsv,.txt,text/csv" hidden>
+      <p class="drop-big">Drop a CSV here, or <span class="link">choose a file</span></p>
+      <p class="drop-small">Customer lists, order exports, product catalogs. It never leaves your browser.</p>
+    </div>
+    <p class="or">No file handy? <button class="linkbtn" id="useSample" type="button">Try the sample order export</button></p>
+    <p class="err" id="loadErr" role="alert" hidden></p>
+  </section>
+
+  <!-- STEP 2 -->
+  <section class="card" id="s2" hidden>
+    <div class="step-head"><span class="num">2</span><h2>Tell it what to fix</h2></div>
+    <p class="meta" id="fileMeta"></p>
+    <div class="tablewrap small"><table id="previewTable"></table></div>
+
+    <label class="lbl" for="instruction">Describe the job in plain English</label>
+    <textarea id="instruction" rows="2" placeholder="e.g. Remove duplicate customers, keep the newest order, flag missing email addresses, and standardize the dates and phone numbers."></textarea>
+    <div class="chips" id="chips">
+      <button type="button" class="chip">Remove duplicate customers, keep the newest order, flag missing email addresses, and standardize the dates and phone numbers.</button>
+      <button type="button" class="chip">Clean everything</button>
+      <button type="button" class="chip">Just find duplicates and flag anything missing</button>
+    </div>
+    <div class="row">
+      <button class="btn primary" id="makePlan" type="button">Make a cleaning plan</button>
+    </div>
+    <p class="honest">Honest note: the instruction reader is a set of keyword rules, not an AI model. It shows you exactly what it understood so you can switch anything on or off.</p>
+  </section>
+
+  <!-- STEP 3 -->
+  <section class="card" id="s3" hidden>
+    <div class="step-head"><span class="num">3</span><h2>Check the plan</h2></div>
+    <div id="notes"></div>
+    <div id="planList" class="plan"></div>
+    <div class="row">
+      <button class="btn primary" id="runPlan" type="button">Run cleaning</button>
+      <span class="hint">Nothing is deleted from your original. You review every change next.</span>
+    </div>
+  </section>
+
+  <!-- STEP 4 -->
+  <section class="card" id="s4" hidden>
+    <div class="step-head"><span class="num">4</span><h2>Review and download</h2></div>
+
+    <div class="stats" id="stats"></div>
+
+    <div class="tabs" role="tablist" id="tabs">
+      <button role="tab" data-tab="changes" class="tab on">Cell changes <span class="count" id="cChanges"></span></button>
+      <button role="tab" data-tab="removed" class="tab">Removed rows <span class="count" id="cRemoved"></span></button>
+      <button role="tab" data-tab="flags" class="tab">Needs your eyes <span class="count" id="cFlags"></span></button>
+      <button role="tab" data-tab="result" class="tab">Result preview</button>
+    </div>
+    <div id="panel" class="panel"></div>
+
+    <div class="export">
+      <div id="exportNote" class="export-note"></div>
+      <div class="row">
+        <button class="btn primary" id="dlClean" type="button">Download cleaned CSV</button>
+        <button class="btn" id="dlReport" type="button">Download change report</button>
+        <button class="btn ghost" id="startOver" type="button">Start over</button>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="wrap foot">
+  <p>CleanSheet runs entirely in your browser. No uploads, no accounts, no tracking. Your original file is never modified.</p>
+</footer>
+
+<script src="engine.js"></script>
+<script src="sample.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
