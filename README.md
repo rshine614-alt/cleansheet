@@ -1,3 +1,5 @@
+**🎬 [Watch the CleanSheet Demo on YouTube](https://www.youtube.com/watch?v=yJq7jfYcJ-w)**
+
 # CleanSheet
 
 Clean a messy CSV in your browser. Every change is explained, reviewable and undoable.
